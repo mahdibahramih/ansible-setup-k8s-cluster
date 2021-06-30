@@ -1,0 +1,12 @@
+---
+- name: inatall package 
+  apt:
+    pkg: "{{ item }}"
+    state: latest
+  with_items:
+    - apt-transport-https 
+    - ca-certificates 
+    - curl 
+    - gnupg 
+    - lsb-release
+

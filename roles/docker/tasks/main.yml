@@ -1,9 +1,11 @@
 ---
+
 - name: remove old version
   apt:
-    pkg: "{{ items }}"
+    pkg: "{{ item }}"
     state: absent
-  sudo: yes
+    update_cache: yes
+  become: yes
   with_items:
     - docker
     - docker-engine
@@ -24,12 +26,13 @@
 
 - name: install docker pkg
   apt:
-    pkg: "{{ items }}"
+    pkg: "{{ item }}"
     state: present
-    with_items:
-      - docker-ce 
-      - docker-ce-cli 
-      - containerd.io
+    update_cache: yes
+  with_items:
+    - docker-ce 
+    - docker-ce-cli 
+    - containerd.io
 - name: enable docker service 
   systemd:
     name: docker

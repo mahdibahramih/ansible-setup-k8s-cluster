@@ -1,0 +1,4 @@
+[master]
+185.235.40.112 ansible_user=ubuntu ansible_ssh_private_key_file=/home/mahdibh/project/uutctf/ar-uutctf-privatekey.pem
+[worker]
+130.185.121.9 ansible_user=ubuntu ansible_ssh_private_key_file=/home/mahdibh/project/uutctf/ar-uutctf-privatekey.pem

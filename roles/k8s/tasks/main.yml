@@ -1,63 +1,73 @@
 ---
 
 
-- name: Add k8s repo signing key
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
+#- name: Add k8s repo signing key
+ # apt_key:
+  #  url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+   # state: present
 
-- name: add k8s apt repository
-  apt_repository: 
-    repo: 'deb http://apt.kubernetes.io/ kubernetes-focal main' 
-    state: present  
-    update_cache: yes
+#- name: add k8s apt repository
+ # apt_repository: 
+  #  repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main' 
+   # state: present  
+    #update_cache: yes
 
-- name: install k8s pkg
-  apt:
-    pkg: "{{ item }}"
-    state: present
-    update_cache: yes
-  with_items:
-    - kubeadm 
-    - kubelet 
-    - kubectl
+#- name: install k8s pkg
+ # apt:
+  #  pkg: "{{ item }}"
+   # state: present
+    #update_cache: yes
+  #with_items:
+   # - kubeadm 
+    #- kubelet 
+    #- kubectl
 
 
-- name: make swap off 
-  shell: 
-    cmd: "swapoff --all"
+#- name: make swap off 
+ # command: "swapoff --all"
 
-- neme: setup cluster in master node
-  shell: 
-    cmd: "kubeadm init --pod-network-cidr=10.10.0.0/16"
+#- name: setup cluster
+
+ # shell: kubeadm init --pod-network-cidr=10.10.0.0/16 
   #when: inventory_hostname in groups['master']
 
-- name: add config dir for user
-  file:
-    path: $HOME/.kube
-    state: directory
-    mode: 0755
+#- name: add config dir for user
+ # file:
+  #  path: $HOME/.kube
+   # state: directory
+    #mode: 0755
   #when: inventory_hostname in groups['master']
 
-- name: copy admin.conf file
-  become: yes
-  become_user: "{{ ansible_user | default(ansible_user_id) }}"
-  copy:
-    src: /etc/kubernetes/admin.conf
-    dest: /home/$HOME/.kube/config
-    remote_src: yes
-    owner: "{{ ansible_user | default(ansible_user_id) }}"
-  when: inventory_hostname in groups['master']
+#- name: copy admin.conf file
+ # become: yes
+  #copy:
+   # src: /etc/kubernetes/admin.conf
+    #dest: /home/$HOME/.kube/config
+    #remote_src: yes
+    #owner: "{{ ansible_user | default(ansible_user_id) }}"
+  #when: inventory_hostname in groups['master']
 
-- name: config wave network 
-  shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
-  when: inventory_hostname in groups['master']
+#- name: config wave network 
+ # shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+  #when: inventory_hostname in groups['master']
 
 - name: get join command 
+  when: inventory_hostname in groups['master']
   shell: kubeadm token create --print-join-command
   register: JoinCommand
+  
+- name: join string
+  set_fact:
+    Joinstring: "{{ JoinCommand.stdout }}"
   when: inventory_hostname in groups['master']
 
+- debug:
+    var: JoinCommand
+
+- debug:
+    var: Joinstring
+  when: inventory_hostname in groups['worker']
+
 - name: join to cluster 
-  shell: kubectl join "{{JoinCommand.stdout_lines }}"
+  shell: kubectl join "{{ Joinstring }}"
   when: inventory_hostname in groups['worker']

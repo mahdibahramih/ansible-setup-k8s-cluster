@@ -1,4 +1,4 @@
 [master]
-185.235.40.22 ansible_user=ubuntu ansible_ssh_private_key_file=/home/mahdibh/personal/uutctf/ar-uutctf-privatekey.pem
+ ansible_user=ubuntu ansible_ssh_private_key_file=
 [worker]
-185.235.43.56 ansible_user=ubuntu ansible_ssh_private_key_file=/home/mahdibh/personal/uutctf/ar-uutctf-privatekey.pem
+ansible_user=ubuntu ansible_ssh_private_key_file=

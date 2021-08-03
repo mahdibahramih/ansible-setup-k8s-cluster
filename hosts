@@ -1,4 +1,4 @@
 [master]
- ansible_user=ubuntu ansible_ssh_private_key_file=
+<ip> ansible_user=  ansible_ssh_private_key_file=
 [worker]
-ansible_user=ubuntu ansible_ssh_private_key_file=
+ ansible_user= ansible_ssh_private_key_file=

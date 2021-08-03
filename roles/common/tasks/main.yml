@@ -11,3 +11,4 @@
     - curl 
     - gnupg 
     - lsb-release
+  become: yes

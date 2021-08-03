@@ -3,14 +3,13 @@
 
 - hosts: all
   gather_facts: yes
-  become: yes
   tasks:
-    #- name: common tasks
-     # include_role:
-      #  name: common
-    #- name: install docker 
-     # include_role: 
-      #  name: docker
+    - name: common tasks
+      include_role:
+        name: common
+    - name: install docker 
+      include_role: 
+        name: docker
     - name: setup k8s cluster 
       include_role: 
         name: k8s

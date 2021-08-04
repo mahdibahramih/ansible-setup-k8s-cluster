@@ -31,36 +31,46 @@
   become: yes
   
 - name: setup cluster
-
+  become: yes
   shell: kubeadm init --pod-network-cidr=10.10.0.0/16 
   when: inventory_hostname in groups['master']
-
+  
 - name: add config dir for user
   file:
     path: $HOME/.kube
     state: directory
     mode: 0755
   when: inventory_hostname in groups['master']
+  become: yes
 
 - name: copy admin.conf file
-  become: yes
   copy:
     src: /etc/kubernetes/admin.conf
-    dest: /home/$HOME/.kube/config
+    dest: /$HOME/.kube/config
     remote_src: yes
     owner: "{{ ansible_user | default(ansible_user_id) }}"
   when: inventory_hostname in groups['master']
+  become: yes
 
 - name: config wave network 
   shell: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
   when: inventory_hostname in groups['master']
+  become: yes
 
 - name: get join command 
   when: inventory_hostname in groups['master']
   shell: kubeadm token create --print-join-command
   register: JoinCommand
+  become: yes
+  run_once: true
+
+- name: Setting host facts using complex arguments
+  set_fact:
+    jc: "{{ JoinCommand.stdout }}"
+  when: inventory_hostname in groups['master']
   run_once: true
 
 - name: join to cluster 
-  shell: kubectl join "{{ JoinCommand.stdout }}"
+  shell:  "{{ jc }}"
   when: inventory_hostname in groups['worker']
+  become: yes

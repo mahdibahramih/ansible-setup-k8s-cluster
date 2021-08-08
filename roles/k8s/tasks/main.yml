@@ -1,18 +1,32 @@
 ---
 
 
+
 - name: Add k8s repo signing key
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
   become: yes
 
+
 - name: add k8s apt repository
   apt_repository: 
     repo: 'deb https://apt.kubernetes.io/ kubernetes-xenial main' 
     state: present  
+  become: yes
+
+
+
+- name: remove old version
+  apt:
+    pkg: "{{ item }}"
+    state: absent
     update_cache: yes
   become: yes
+  with_items:
+    - kubeadm 
+    - kubelet 
+    - kubectl
 
 - name: install k8s pkg
   apt:
@@ -25,11 +39,14 @@
     - kubectl
   become: yes
 
-
 - name: make swap off 
   command: "swapoff --all"
   become: yes
-  
+
+- name: reset cluster
+  become: yes
+  shell: "kubeadm reset --force" 
+    
 - name: setup cluster
   become: yes
   shell: kubeadm init --pod-network-cidr=10.10.0.0/16 
@@ -64,7 +81,7 @@
   become: yes
   run_once: true
 
-- name: Setting host facts using complex arguments
+- name: get join command from master hostvar
   set_fact:
     jc: "{{ JoinCommand.stdout }}"
   when: inventory_hostname in groups['master']
